@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <title>Emoji Picker</title>
+</head>
+<body>
+    <div class="emoji-picker">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" class="search-input" placeholder="Search emojis..." />
+            <button class="close-btn" title="Close"></button>
+        </div>
+
+        <!-- Search Suggestions -->
+        <div class="suggestions-container" id="suggestions-container"></div>
+
+        <!-- Emoji Content -->
+        <div class="emoji-content" id="emoji-content">
+            <!-- Results will be dynamically populated -->
+        </div>
+
+        <!-- Category Navigation -->
+        <div class="category-nav">
+            <button class="cat-btn" data-category="recent" title="Recently Used">🕐</button>
+            <button class="cat-btn active" data-category="smileys" title="Smileys & People">😀</button>
+            <button class="cat-btn" data-category="animals" title="Animals & Nature">🐻</button>
+            <button class="cat-btn" data-category="food" title="Food & Drink">🍔</button>
+            <button class="cat-btn" data-category="activities" title="Activities">⚽</button>
+            <button class="cat-btn" data-category="travel" title="Travel & Places">🚗</button>
+            <button class="cat-btn" data-category="objects" title="Objects">💡</button>
+            <button class="cat-btn" data-category="symbols" title="Symbols">❤️</button>
+            <button class="cat-btn" data-category="flags" title="Flags">🏳️</button>
+            <button class="cat-btn more" title="More">»</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample emoji data (15 emojis for testing)
+        const emojiData = [
+            {emoji: "😀", annotation: "grinning face", tags: "face, grin, smile, happy", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😃", annotation: "grinning face with big eyes", tags: "face, mouth, open, smile, happy", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😄", annotation: "grinning face with smiling eyes", tags: "eye, face, mouth, open, smile, joy", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😁", annotation: "beaming face with smiling eyes", tags: "eye, face, grin, smile, happy", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😆", annotation: "grinning squinting face", tags: "face, laugh, mouth, satisfied, smile, lol", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😅", annotation: "grinning face with sweat", tags: "cold, face, open, smile, sweat", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "🤣", annotation: "rolling on the floor laughing", tags: "face, floor, laugh, rofl, rolling, rotfl, lol", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😂", annotation: "face with tears of joy", tags: "face, joy, laugh, tear, cry, happy", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "🙂", annotation: "slightly smiling face", tags: "face, smile", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😉", annotation: "winking face", tags: "face, wink", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😊", annotation: "smiling face with smiling eyes", tags: "blush, eye, face, smile", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "😇", annotation: "smiling face with halo", tags: "angel, face, fantasy, halo, innocent", group: "smileys", subgroup: "face-smiling"},
+            {emoji: "🐻", annotation: "bear", tags: "animal, bear", group: "animals", subgroup: "animal-mammal"},
+            {emoji: "🍔", annotation: "hamburger", tags: "burger, food, hamburger", group: "food", subgroup: "food-prepared"},
+            {emoji: "❤️", annotation: "red heart", tags: "heart, love, red", group: "symbols", subgroup: "heart"}
+        ];
+
+        // Preprocess data and create search index
+        function createSearchIndex(data) {
+            return data.map(emoji => {
+                // Combine all searchable text fields
+                const searchText = `${emoji.annotation} ${emoji.tags} ${emoji.group} ${emoji.subgroup}`.toLowerCase();
+                
+                // Tokenize and remove duplicates
+                const tokens = [...new Set(
+                    searchText
+                        .split(/[,\s]+/)
+                        .filter(token => token.length > 0)
+                )];
+                
+                return {
+                    ...emoji,
+                    searchText,
+                    tokens
+                };
+            });
+        }
+
+        const searchIndex = createSearchIndex(emojiData);
+        
+        // DOM elements
+        const searchInput = document.querySelector('.search-input');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const emojiContent = document.getElementById('emoji-content');
+        
+        // Search functionality with fuzzy matching
+        function searchEmojis(query, limit = 10) {
+            if (!query.trim()) {
+                return [];
+            }
+            
+            const normalizedQuery = query.toLowerCase().trim();
+            const queryTerms = normalizedQuery.split(/\s+/);
+            
+            // Score each emoji based on match relevance
+            const scoredResults = searchIndex.map(emoji => {
+                let score = 0;
+                let matchedTerms = [];
+                
+                // Check each query term against emoji's search text
+                for (const term of queryTerms) {
+                    if (term.length < 1) continue;
+                    
+                    // Exact match in annotation (highest priority)
+                    if (emoji.annotation.toLowerCase().includes(term)) {
+                        score += 10;
+                        matchedTerms.push(term);
+                        continue;
+                    }
+                    
+                    // Exact match in tags
+                    if (emoji.tags.toLowerCase().includes(term)) {
+                        score += 8;
+                        matchedTerms.push(term);
+                        continue;
+                    }
+                    
+                    // Exact match in group or subgroup
+                    if (emoji.group.toLowerCase().includes(term) || 
+                        emoji.subgroup.toLowerCase().includes(term)) {
+                        score += 5;
+                        matchedTerms.push(term);
+                        continue;
+                    }
+                    
+                    // Fuzzy matching (typo tolerance)
+                    for (const token of emoji.tokens) {
+                        // Check if token starts with query term
+                        if (token.startsWith(term)) {
+                            score += 6;
+                            matchedTerms.push(term);
+                            break;
+                        }
+                        
+                        // Check if query term is similar to token
+                        if (term.length > 1 && calculateSimilarity(term, token) > 0.7) {
+                            score += 4;
+                            matchedTerms.push(term);
+                            break;
+                        }
+                    }
+                }
+                
+                return {
+                    emoji,
+                    score,
+                    matchedTerms: [...new Set(matchedTerms)]
+                };
+            });
+            
+            // Filter and sort results
+            return scoredResults
+                .filter(result => result.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, limit);
+        }
+        
+        // Calculate similarity between two strings (0 to 1)
+        function calculateSimilarity(s1, s2) {
+            const longer = s1.length > s2.length ? s1 : s2;
+            const shorter = s1.length > s2.length ? s2 : s1;
+            
+            if (longer.length === 0) return 1.0;
+            if (longer.includes(shorter)) return 0.9;
+            
+            const distance = calculateEditDistance(s1, s2);
+            return 1 - (distance / Math.max(s1.length, s2.length));
+        }
+        
+        // Calculate edit distance between two strings
+        function calculateEditDistance(s1, s2) {
+            s1 = s1.toLowerCase();
+            s2 = s2.toLowerCase();
+            
+            const costs = [];
+            for (let i = 0; i <= s1.length; i++) {
+                let lastValue = i;
+                for (let j = 0; j <= s2.length; j++) {
+                    if (i === 0) {
+                        costs[j] = j;
+                    } else if (j > 0) {
+                        let newValue = costs[j - 1];
+                        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                        }
+                        costs[j - 1] = lastValue;
+                        lastValue = newValue;
+                    }
+                }
+                if (i > 0) costs[s2.length] = lastValue;
+            }
+            return costs[s2.length];
+        }
+        
+        // Display search suggestions
+        function showSuggestions(query) {
+            suggestionsContainer.innerHTML = '';
+            
+            if (query.length < 1) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            
+            const results = searchEmojis(query, 3);
+            
+            if (results.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `
+                    <div class="suggestion-emoji">${result.emoji.emoji}</div>
+                    <div class="suggestion-text">
+                        <div class="suggestion-name">${result.emoji.annotation}</div>
+                        <div class="suggestion-tags">${result.emoji.tags.split(',').slice(0, 3).join(',')}</div>
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    searchInput.value = result.emoji.annotation;
+                    performSearch(result.emoji.annotation);
+                    suggestionsContainer.style.display = 'none';
+                });
+                
+                suggestionsContainer.appendChild(item);
+            });
+            
+            suggestionsContainer.style.display = 'block';
+        }
+        
+        // Display emojis by category
+        function displayByCategory(category) {
+            emojiContent.innerHTML = '';
+            
+            let filteredEmojis;
+            if (category === 'recent') {
+                filteredEmojis = searchIndex.slice(0, 8); // Mock recent emojis
+            } else {
+                filteredEmojis = searchIndex.filter(emoji => emoji.group === category);
+            }
+            
+            if (filteredEmojis.length === 0) {
+                emojiContent.innerHTML = '<div class="no-results">No emojis in this category</div>';
+                return;
+            }
+            
+            const section = document.createElement('div');
+            section.className = 'emoji-section';
+            
+            const title = document.createElement('div');
+            title.className = 'section-title';
+            title.textContent = category.toUpperCase();
+            
+            const grid = document.createElement('div');
+            grid.className = 'emoji-grid';
+            
+            filteredEmojis.forEach(emojiItem => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-btn';
+                btn.textContent = emojiItem.emoji;
+                btn.title = emojiItem.annotation;
+                
+                btn.addEventListener('click', () => {
+                    console.log('Emoji clicked:', emojiItem.emoji);
+                    // Copy to clipboard or handle emoji selection
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(emojiItem.emoji);
+                    }
+                });
+                
+                grid.appendChild(btn);
+            });
+            
+            section.appendChild(title);
+            section.appendChild(grid);
+            emojiContent.appendChild(section);
+        }
+        
+        // Display search results
+        function displaySearchResults(results) {
+            emojiContent.innerHTML = '';
+            
+            if (results.length === 0) {
+                emojiContent.innerHTML = '<div class="no-results">No emojis found. Try different search terms.</div>';
+                return;
+            }
+            
+            const section = document.createElement('div');
+            section.className = 'emoji-section';
+            
+            const title = document.createElement('div');
+            title.className = 'section-title';
+            title.textContent = `SEARCH RESULTS (${results.length})`;
+            
+            const grid = document.createElement('div');
+            grid.className = 'emoji-grid';
+            
+            results.forEach(result => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-btn';
+                btn.textContent = result.emoji.emoji;
+                btn.title = result.emoji.annotation;
+                
+                btn.addEventListener('click', () => {
+                    console.log('Emoji clicked:', result.emoji.emoji);
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(result.emoji.emoji);
+                    }
+                });
+                
+                grid.appendChild(btn);
+            });
+            
+            section.appendChild(title);
+            section.appendChild(grid);
+            emojiContent.appendChild(section);
+        }
+        
+        // Perform search and display results
+        function performSearch(query) {
+            if (!query.trim()) {
+                // Show default category (smileys)
+                displayByCategory('smileys');
+                return;
+            }
+            
+            const results = searchEmojis(query, 15);
+            displaySearchResults(results);
+        }
+        
+        // Event listeners
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            showSuggestions(query);
+            performSearch(query);
+        });
+        
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value && suggestionsContainer.children.length > 0) {
+                suggestionsContainer.style.display = 'block';
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // Category navigation
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const category = e.target.dataset.category;
+                if (!category) return;
+                
+                // Clear search
+                searchInput.value = '';
+                suggestionsContainer.style.display = 'none';
+                
+                // Update active state
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Display category
+                displayByCategory(category);
+            });
+        });
+
+        // Close button
+        document.querySelector('.close-btn').addEventListener('click', () => {
+            window.close();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.close();
+            }
+        });
+
+        // Initialize with smileys category
+        displayByCategory('smileys');
+    </script>
+</body>
+</html>

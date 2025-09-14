@@ -1,0 +1,12 @@
+{
+  "name": "emoji-picker-widget",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --remote-debugging-port=9222"
+  },
+  "devDependencies": {
+    "electron": "^26.6.10",
+    "electron-reload": "^2.0.0-alpha.1"
+  }
+}
