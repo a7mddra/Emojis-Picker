@@ -1,12 +1,12 @@
 {
-  "name": "emoji-picker-widget",
+  "name": "emoji-widget",
   "version": "1.0.0",
-  "main": "main.js",
+  "description": "iOS-like emoji picker widget",
+  "main": "electron-main.js",
   "scripts": {
-    "start": "electron . --remote-debugging-port=9222"
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron ."
   },
-  "devDependencies": {
-    "electron": "^26.6.10",
-    "electron-reload": "^2.0.0-alpha.1"
-  }
+  "author": "a7md",
+  "license": "MIT"
 }

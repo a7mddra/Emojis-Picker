@@ -11,6 +11,7 @@ html, body {
     background: transparent;
     -webkit-user-select: none;
     user-select: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 .emoji-picker {
@@ -99,7 +100,7 @@ html, body {
     position: absolute;
     width: 7px;
     height: 1px;
-    background: #ffffff;
+    background: #2c0909;
     border-radius: 0.5px;
     top: 50%;
     left: 50%;
@@ -217,7 +218,6 @@ html, body {
     margin-bottom: 8px;
     padding: 0 4px;
     letter-spacing: 0.5px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 .emoji-grid {
@@ -238,6 +238,7 @@ html, body {
     align-items: center;
     justify-content: center;
     transition: all 0.15s ease;
+    position: relative;
 }
 
 .emoji-btn:hover {
@@ -250,17 +251,106 @@ html, body {
     transform: scale(0.95);
 }
 
+.emoji-btn.has-skin-tones::after {
+    content: '▼';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 6px;
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}
+
+/* Skin Tone Popover */
+.skin-tone-popover {
+    position: fixed;
+    background: rgba(50, 50, 50, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 1000;
+    left: 50%;
+}
+
+.skin-tone-popover.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.skin-tone-options {
+    display: flex;
+    gap: 4px;
+}
+
+.skin-tone-option {
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.skin-tone-option:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+}
+
+.skin-tone-option:active {
+    transform: scale(0.95);
+}
+
+/* Copy Feedback */
+.copy-feedback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(40, 40, 40, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 2000;
+}
+
+.copy-feedback.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
 /* Category Navigation */
 .category-nav {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    gap: 2px;
+    background: rgba(25, 25, 25, 0.5);
 }
 
 .cat-btn {
-    flex: 1;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -269,52 +359,56 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
-    color: rgba(255, 255, 255, 0.6);
-    -webkit-app-region: no-drag;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .cat-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .cat-btn.active {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.15);
 }
 
-.cat-btn.more {
-    max-width: 36px;
-    font-size: 24px;
-    font-weight: bold;
+.cat-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1px;
 }
 
 /* No Results */
 .no-results {
     text-align: center;
-    padding: 30px 20px;
+    padding: 40px 20px;
     color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
-    line-height: 1.5;
 }
 
-/* Animations */
+/* Responsive adjustments */
+@media (max-width: 380px) {
+    .emoji-grid {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .emoji-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 22px;
+    }
+}
+
+/* Animation keyframes */
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: scale(0.95) translateY(-10px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: scale(1) translateY(0); 
-    }
-}
-
-@keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -322,37 +416,6 @@ html, body {
     }
 }
 
-@keyframes popupSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.emoji-picker {
-    animation: fadeIn 0.2s ease-out;
-}
-
-.suggestions-container {
-    animation: slideDown 0.15s ease-out;
-}
-
 .emoji-section {
-    animation: fadeIn 0.3s ease-out;
-}
-
-/* Responsive adjustments */
-@media (max-width: 400px) {
-    .emoji-grid {
-        grid-template-columns: repeat(6, 1fr);
-    }
-    
-    .emoji-btn {
-        width: 42px;
-        height: 42px;
-    }
+    animation: fadeIn 0.3s ease;
 }
