@@ -1,12 +1,6 @@
 const { app, BrowserWindow, globalShortcut } = require('electron');
 const path = require('path');
 
-app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform');
-app.commandLine.appendSwitch('ozone-platform', 'wayland');
-
-app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
-
 function createWindow() {
   const win = new BrowserWindow({
     width: 360,
