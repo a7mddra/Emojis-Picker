@@ -1,4 +1,4 @@
-import { emojiData } from './emoji-data.js';
+import { emojiData } from './assets/emoji-data.js';
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Create search index from emojiData
