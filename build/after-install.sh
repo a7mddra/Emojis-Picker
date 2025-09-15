@@ -63,4 +63,14 @@ if command -v gsettings >/dev/null 2>&1; then
   print "✅ Shortcut configured (if running GNOME). Press Ctrl+; to open ${APP_NAME} (if GNOME)."
 fi
 
+set -e
+
+DESKTOP_FILE="/usr/share/applications/emojiz.desktop"
+
+if [ -f "$DESKTOP_FILE" ]; then
+    if ! grep -q "StartupWMClass=emojiz" "$DESKTOP_FILE"; then
+        echo "StartupWMClass=emojiz" | sudo tee -a "$DESKTOP_FILE" > /dev/null
+    fi
+fi
+
 exit 0
