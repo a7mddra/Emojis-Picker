@@ -30,8 +30,8 @@
       "target": [
         "deb"
       ],
-      "category": "Utility",
       "icon": "build/icons",
+      "category": "Utility",
       "executableName": "Emojiz"
     },
     "deb": {
