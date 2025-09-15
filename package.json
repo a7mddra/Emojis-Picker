@@ -1,5 +1,5 @@
 {
-  "name": "emoji-widget",
+  "name": "emojiz",
   "version": "1.0.0",
   "description": "iOS-like emoji picker widget",
   "main": "electron-main.js",
@@ -15,8 +15,8 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.a7md.emojispicker",
-    "productName": "EmojisPicker",
+    "appId": "com.a7md.emojiz",
+    "productName": "Emojiz",
     "directories": {
       "buildResources": "build"
     },
@@ -26,10 +26,10 @@
       "!dist"
     ],
     "linux": {
-      "target": ["deb", "AppImage"],
+      "target": ["deb"],
       "category": "Utility",
       "icon": "build/icons",
-      "executableName": "EmojisPicker"
+      "executableName": "Emojiz"
     }
   }
 }

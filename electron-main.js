@@ -31,7 +31,7 @@ function createWindow() {
   });
 
   try {
-    win.setAppUserModelId('com.a7md.emoji-picker');
+    win.setAppUserModelId('com.a7md.emojiz');
   } catch (e) {}
 
   if (process.env.NODE_ENV === 'development') {
@@ -45,19 +45,6 @@ let mainWindow;
 
 app.whenReady().then(() => {
   mainWindow = createWindow();
-
-  const shortcut = process.platform === 'darwin' ? 'Command+Alt+E' : 'Control+Alt+E';
-  if (!globalShortcut.register(shortcut, () => {
-    if (mainWindow) {
-      if (mainWindow.isVisible()) { mainWindow.hide(); }
-      else { mainWindow.show(); mainWindow.focus(); }
-    }
-  })) {
-    console.log('Failed to register global shortcut');
-  } else {
-    console.log(`Registered shortcut: ${shortcut}`);
-  }
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow();
     else if (mainWindow) mainWindow.show();
