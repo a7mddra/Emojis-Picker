@@ -191,22 +191,30 @@ document.addEventListener('DOMContentLoaded', function () {
             skinToneOptions.appendChild(option);
         });
 
-
         const rect = btn.getBoundingClientRect();
         const container = document.querySelector('.emoji-content');
-        const containerRect = container.getBoundingClientRect();
         const picker = document.querySelector('.emoji-picker');
-        const pickerRect = picker.getBoundingClientRect();
 
+        // Add null checks to prevent errors
+        if (!container || !picker) {
+            // Fallback to simple positioning if elements don't exist
+            skinTonePopover.style.left = `${rect.left + rect.width / 2}px`;
+            let top = rect.top - 48 - 8;
+            if (top < 8) top = rect.bottom + 8;
+            skinTonePopover.style.top = `${top}px`;
+            skinTonePopover.classList.add('visible');
+            return;
+        }
+
+        const containerRect = container.getBoundingClientRect();
+        const pickerRect = picker.getBoundingClientRect();
 
         const numTones = emojiItem.skinTones.length;
         const popoverWidth = (numTones * 36) + ((numTones - 1) * 4) + 8;
         const popoverHeight = 44;
 
-
         let left = rect.left - pickerRect.left + (rect.width / 2) - (popoverWidth / 2);
         let top = rect.top - pickerRect.top - popoverHeight - 8;
-
 
         const minLeft = 8;
         const maxLeft = pickerRect.width - popoverWidth - 8;
@@ -217,31 +225,23 @@ document.addEventListener('DOMContentLoaded', function () {
             left = maxLeft;
         }
 
-
         const spaceAbove = rect.top - pickerRect.top;
         const spaceBelow = pickerRect.bottom - rect.bottom;
 
-
         if (spaceAbove < popoverHeight + 16) {
-
             top = rect.bottom - pickerRect.top + 8;
 
-
             if (top + popoverHeight > pickerRect.height - 8) {
-
                 const spaceRight = pickerRect.right - rect.right;
                 const spaceLeft = rect.left - pickerRect.left;
 
                 if (spaceRight > popoverWidth + 16) {
-
                     left = rect.right - pickerRect.left + 8;
                     top = rect.top - pickerRect.top + (rect.height / 2) - (popoverHeight / 2);
                 } else if (spaceLeft > popoverWidth + 16) {
-
                     left = rect.left - pickerRect.left - popoverWidth - 8;
                     top = rect.top - pickerRect.top + (rect.height / 2) - (popoverHeight / 2);
                 } else {
-
                     top = Math.max(8, rect.top - pickerRect.top - popoverHeight - 8);
                 }
             }
