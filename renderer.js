@@ -1,7 +1,7 @@
 import { emojiData } from './assets/emoji-data.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     function createSearchIndex(data) {
         return data.map(emoji => {
             const searchText = `${emoji.annotation || ''} ${emoji.tags || ''} ${emoji.group || ''} ${emoji.subgroup || ''}`.toLowerCase();
@@ -20,14 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const searchIndex = createSearchIndex(emojiData || []);
 
-    
+
     const searchInput = document.querySelector('.search-input');
     const suggestionsContainer = document.getElementById('suggestions-container');
     const emojiContent = document.getElementById('emoji-content');
     const skinTonePopover = document.getElementById('skin-tone-popover');
     const skinToneOptions = document.getElementById('skin-tone-options');
 
-    
+
     const RECENT_KEY = 'emoji_picker_recents_v1';
     function getRecents() {
         try {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
     }
-    
+
     function pushRecent(emojiChar) {
         try {
             let recents = getRecents();
@@ -51,16 +51,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function clearRecents() {
         try {
             localStorage.removeItem(RECENT_KEY);
-            
+
             showClearedFeedback();
-            
+
             const activeBtn = document.querySelector('.cat-btn.active');
             if (activeBtn && activeBtn.dataset.category === 'recent') {
                 displayByCategory('recent');
             }
         } catch (e) { /* ignore */ }
     }
-    
+
     function safeCopyToClipboard(text) {
         if (!text) return Promise.reject();
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -109,12 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
             }, 300);
         }, 1400);
-    }    
-    
+    }
+
     let longPressTimer = null;
     let isLongPress = false;
     let currentEmojiData = null;
-    
+
     let categoryLongPressTimer = null;
     let isCategoryLongPress = false;
 
@@ -151,13 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (category === 'recent') {
                 clearRecents();
             }
-        }, 800); 
+        }, 800);
     }
 
     function endCategoryLongPress(btn, category) {
         clearTimeout(categoryLongPressTimer);
         if (!isCategoryLongPress) {
-            
+
             if (!category) return;
             searchInput.value = '';
             suggestionsContainer.style.display = 'none';
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
             displayByCategory(category);
         }
         isCategoryLongPress = false;
-    }    
+    }
 
     function showSkinTonePopover(btn, emojiItem) {
         currentEmojiData = emojiItem;
@@ -184,32 +184,73 @@ document.addEventListener('DOMContentLoaded', function() {
                         pushRecent(tone);
                         showCopiedFeedback(tone);
                     })
-                    .catch(() => {});
+                    .catch(() => { });
                 hideSkinTonePopover();
             });
 
             skinToneOptions.appendChild(option);
         });
 
-        const rect = btn.getBoundingClientRect();
-        skinTonePopover.style.left = `${rect.left + rect.width / 2}px`;
 
-        let top = rect.top - 48 - 8;
-        if (top < 8) top = rect.bottom + 8;
+        const rect = btn.getBoundingClientRect();
+        const container = document.querySelector('.emoji-content');
+        const containerRect = container.getBoundingClientRect();
+        const picker = document.querySelector('.emoji-picker');
+        const pickerRect = picker.getBoundingClientRect();
+
+
+        const numTones = emojiItem.skinTones.length;
+        const popoverWidth = (numTones * 36) + ((numTones - 1) * 4) + 8;
+        const popoverHeight = 44;
+
+
+        let left = rect.left - pickerRect.left + (rect.width / 2) - (popoverWidth / 2);
+        let top = rect.top - pickerRect.top - popoverHeight - 8;
+
+
+        const minLeft = 8;
+        const maxLeft = pickerRect.width - popoverWidth - 8;
+
+        if (left < minLeft) {
+            left = minLeft;
+        } else if (left > maxLeft) {
+            left = maxLeft;
+        }
+
+
+        const spaceAbove = rect.top - pickerRect.top;
+        const spaceBelow = pickerRect.bottom - rect.bottom;
+
+
+        if (spaceAbove < popoverHeight + 16) {
+
+            top = rect.bottom - pickerRect.top + 8;
+
+
+            if (top + popoverHeight > pickerRect.height - 8) {
+
+                const spaceRight = pickerRect.right - rect.right;
+                const spaceLeft = rect.left - pickerRect.left;
+
+                if (spaceRight > popoverWidth + 16) {
+
+                    left = rect.right - pickerRect.left + 8;
+                    top = rect.top - pickerRect.top + (rect.height / 2) - (popoverHeight / 2);
+                } else if (spaceLeft > popoverWidth + 16) {
+
+                    left = rect.left - pickerRect.left - popoverWidth - 8;
+                    top = rect.top - pickerRect.top + (rect.height / 2) - (popoverHeight / 2);
+                } else {
+
+                    top = Math.max(8, rect.top - pickerRect.top - popoverHeight - 8);
+                }
+            }
+        }
+
+        skinTonePopover.style.left = `${left}px`;
         skinTonePopover.style.top = `${top}px`;
 
         skinTonePopover.classList.add('visible');
-
-        requestAnimationFrame(() => {
-            const popRect = skinTonePopover.getBoundingClientRect();
-            if (popRect.right > window.innerWidth - 8) {
-                const overflow = popRect.right - window.innerWidth + 8;
-                skinTonePopover.style.left = `${(rect.left + rect.width / 2) - overflow}px`;
-            }
-            if (popRect.left < 8) {
-                skinTonePopover.style.left = `${rect.left + rect.width / 2 + (8 - popRect.left)}px`;
-            }
-        });
     }
 
     function hideSkinTonePopover() {
@@ -217,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentEmojiData = null;
     }
 
-    
+
     function calculateEditDistance(s1, s2) {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
@@ -299,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .slice(0, limit);
     }
 
-    
+
     function showSuggestions(query) {
         suggestionsContainer.innerHTML = '';
         if (!query || query.trim().length === 0) {
@@ -320,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="suggestion-emoji">${result.emoji.emoji}</div>
                 <div class="suggestion-text">
                     <div class="suggestion-name">${result.emoji.annotation}</div>
-                    <div class="suggestion-tags">${(result.emoji.tags || '').split(',').slice(0,3).join(',')}</div>
+                    <div class="suggestion-tags">${(result.emoji.tags || '').split(',').slice(0, 3).join(',')}</div>
                 </div>
             `;
             item.addEventListener('click', () => {
@@ -440,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
         displaySearchResults(results);
     }
 
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const q = e.target.value;
@@ -466,22 +507,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.cat-btn').forEach(btn => {
         const category = btn.dataset.category;
-        
-        
+
+
         btn.addEventListener('mousedown', (e) => {
             startCategoryLongPress(btn, category);
         });
-        
+
         btn.addEventListener('mouseup', (e) => {
             endCategoryLongPress(btn, category);
         });
-        
+
         btn.addEventListener('mouseleave', () => {
             clearTimeout(categoryLongPressTimer);
             isCategoryLongPress = false;
         });
 
-        
+
         btn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             startCategoryLongPress(btn, category);
@@ -501,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.querySelector('.close-btn');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            try { window.close(); } catch (e) {}
+            try { window.close(); } catch (e) { }
         });
     }
 
@@ -510,7 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (skinTonePopover.classList.contains('visible')) {
                 hideSkinTonePopover();
             } else {
-                try { window.close(); } catch (err) {}
+                try { window.close(); } catch (err) { }
             }
         }
     });
@@ -518,6 +559,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', hideSkinTonePopover);
     window.addEventListener('scroll', hideSkinTonePopover, true);
 
-    
+
     displayByCategory('smileys and people');
 });

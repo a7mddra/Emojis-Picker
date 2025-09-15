@@ -26,6 +26,7 @@ body {
     flex-direction: column;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
 }
 
 /* Search Bar */
@@ -264,7 +265,7 @@ body {
 
 /* Skin Tone Popover */
 .skin-tone-popover {
-    position: fixed;
+    position: absolute;
     background: rgba(50, 50, 50, 0.98);
     backdrop-filter: blur(20px);
     border-radius: 8px;
@@ -272,16 +273,15 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
     opacity: 0;
-    transform: translateX(-50%) translateY(5px);
+    transform: translateY(5px);
     transition: all 0.2s ease;
     pointer-events: none;
     z-index: 1000;
-    left: 50%;
 }
 
 .skin-tone-popover.visible {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
     pointer-events: auto;
 }
 

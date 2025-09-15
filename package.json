@@ -3,10 +3,33 @@
   "version": "1.0.0",
   "description": "iOS-like emoji picker widget",
   "main": "electron-main.js",
+  "author": "a7md <a7md@example.com>",
+  "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "dev": "NODE_ENV=development electron ."
+    "build": "electron-builder",
+    "dist": "electron-builder --linux deb"
   },
-  "author": "a7md",
-  "license": "MIT"
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.a7md.emojispicker",
+    "productName": "EmojisPicker",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md}",
+      "!dist"
+    ],
+    "linux": {
+      "target": ["deb", "AppImage"],
+      "category": "Utility",
+      "icon": "build/icons",
+      "executableName": "EmojisPicker"
+    }
+  }
 }
