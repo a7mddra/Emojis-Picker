@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "emojiz",
   "version": "1.0.0",
   "description": "iOS-like emoji picker widget",

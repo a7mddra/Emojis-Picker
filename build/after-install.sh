@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # build/after-install.sh
-# Ensures it's executable, then creates a GNOME custom shortcut that runs "Emojiz".
+# Ensures it's executable, fixes Electron sandbox permissions,
+# then creates a GNOME custom shortcut that runs "Emojiz".
 # This script is safe to be used as FPM/DEB --after-install / maintainer script.
 
 SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")"
 if [ ! -x "$SCRIPT_PATH" ]; then
-
     chmod +x "$SCRIPT_PATH" 2>/dev/null || true
 fi
 
@@ -17,12 +17,19 @@ SHORTCUT_NAME="Launch ${APP_NAME}"
 SHORTCUT_COMMAND="${APP_NAME}"
 
 print() {
-
     if [ -t 1 ]; then
         echo -e "$@"
     fi
 }
 
+### 🔧 Fix Electron sandbox permissions
+if [ -f "/opt/${APP_NAME}/chrome-sandbox" ]; then
+    chown root:root "/opt/${APP_NAME}/chrome-sandbox" || true
+    chmod 4755 "/opt/${APP_NAME}/chrome-sandbox" || true
+    print "✅ Sandbox permissions fixed for /opt/${APP_NAME}/chrome-sandbox"
+fi
+
+### 🎹 GNOME shortcut setup
 if ! command -v gsettings >/dev/null 2>&1; then
     print "⚠️  gsettings not found — skipping GNOME shortcut setup."
     exit 0
@@ -54,7 +61,6 @@ if [[ "$current_bindings" != *"$CUSTOM_KEY_PATH"* ]]; then
     else
         new_bindings="${current_bindings%]*}, '$CUSTOM_KEY_PATH']"
     fi
-
     gsettings_exec set "$KEYBINDING_LIST_SCHEMA" "$KEYBINDING_LIST_KEY" "$new_bindings" 2>/dev/null || true
 fi
 
