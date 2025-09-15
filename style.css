@@ -96,27 +96,6 @@ body {
     transform: scale(0.9);
 }
 
-.close-btn::before,
-.close-btn::after {
-    content: '';
-    position: absolute;
-    width: 7px;
-    height: 1px;
-    background: #2c0909;
-    border-radius: 0.5px;
-    top: 50%;
-    left: 50%;
-    transform-origin: center;
-}
-
-.close-btn::before {
-    transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.close-btn::after {
-    transform: translate(-50%, -50%) rotate(-45deg);
-}
-
 /* Search Suggestions */
 .suggestions-container {
     position: absolute;

@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "iOS-like emoji picker widget",
   "main": "electron-main.js",
-  "author": "a7md <a7md@example.com>",
+  "author": "a7md a7mddra@gmail.com",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
+    "start:wayland": "electron . --enable-features=UseOzonePlatform --ozone-platform=wayland",
     "build": "electron-builder",
     "dist": "electron-builder --linux deb"
   },
@@ -26,10 +27,45 @@
       "!dist"
     ],
     "linux": {
-      "target": ["deb", "AppImage"],
+      "target": [
+        {
+          "target": "deb",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
       "category": "Utility",
       "icon": "build/icons",
-      "executableName": "EmojisPicker"
+      "executableName": "EmojisPicker",
+      "desktop": {
+        "Name": "EmojisPicker",
+        "Comment": "iOS-like emoji picker widget",
+        "Categories": "Utility;",
+        "MimeType": "text/plain;"
+      },
+      "extraFiles": [
+        {
+          "from": "build/EmojisPicker.desktop",
+          "to": "."
+        }
+      ]
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ],
+      "afterInstall": "build/afterInstall.sh"
     }
   }
 }
