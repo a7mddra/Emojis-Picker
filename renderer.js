@@ -1,7 +1,7 @@
 import { emojiData } from './assets/emoji-data.js';
-// Wait for DOM to be fully loaded
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Create search index from emojiData
+    
     function createSearchIndex(data) {
         return data.map(emoji => {
             const searchText = `${emoji.annotation || ''} ${emoji.tags || ''} ${emoji.group || ''} ${emoji.subgroup || ''}`.toLowerCase();
@@ -20,14 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const searchIndex = createSearchIndex(emojiData || []);
 
-    // DOM refs
+    
     const searchInput = document.querySelector('.search-input');
     const suggestionsContainer = document.getElementById('suggestions-container');
     const emojiContent = document.getElementById('emoji-content');
     const skinTonePopover = document.getElementById('skin-tone-popover');
     const skinToneOptions = document.getElementById('skin-tone-options');
 
-    // Recents (localStorage)
+    
     const RECENT_KEY = 'emoji_picker_recents_v1';
     function getRecents() {
         try {
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) { /* ignore */ }
     }
 
-    // Clipboard utility (safe fallback)
+    
     function safeCopyToClipboard(text) {
         if (!text) return Promise.reject();
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1400);
     }
 
-    // Long-press handling (skin tones)
+    
     let longPressTimer = null;
     let isLongPress = false;
     let currentEmojiData = null;
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentEmojiData = null;
     }
 
-    // Fuzzy search helpers
+    
     function calculateEditDistance(s1, s2) {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .slice(0, limit);
     }
 
-    // UI rendering: suggestions, grid, categories
+    
     function showSuggestions(query) {
         suggestionsContainer.innerHTML = '';
         if (!query || query.trim().length === 0) {
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
         displaySearchResults(results);
     }
 
-    // Event wiring
+    
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const q = e.target.value;
@@ -443,6 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', hideSkinTonePopover);
     window.addEventListener('scroll', hideSkinTonePopover, true);
 
-    // Initialize with smileys category
-    displayByCategory('smileys');
+    
+    displayByCategory('smileys and people');
 });

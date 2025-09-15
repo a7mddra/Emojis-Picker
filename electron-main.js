@@ -25,10 +25,6 @@ function createWindow() {
 
   win.once('ready-to-show', () => win.center());
 
-  win.on('blur', () => {
-    setTimeout(() => { if (!win.isFocused()) win.hide(); }, 100);
-  });
-
   win.on('close', (event) => {
     event.preventDefault();
     win.hide();
