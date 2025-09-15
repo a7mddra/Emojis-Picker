@@ -35,7 +35,8 @@
       "executableName": "Emojiz"
     },
     "deb": {
-      "afterInstall": "build/after-install.sh"
+      "afterInstall": "build/after-install.sh",
+      "beforeRemove": "build/before-remove.sh"
     }
   }
 }
