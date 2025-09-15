@@ -26,13 +26,15 @@
       "!dist"
     ],
     "linux": {
-      "target": ["deb"],
+      "target": [
+        "deb"
+      ],
       "category": "Utility",
       "icon": "build/icons",
-      "executableName": "Emojiz",
-      "deb": {
-        "afterInstall": "build/after-install.sh"
-      }
+      "executableName": "Emojiz"
+    },
+    "deb": {
+      "afterInstall": "build/after-install.sh"
     }
   }
 }
