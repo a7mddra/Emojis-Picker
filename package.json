@@ -36,7 +36,7 @@
     },
     "deb": {
       "afterInstall": "build/after-install.sh",
-      "beforeRemove": "build/before-remove.sh"
+      "afterRemove": "build/after-remove.sh"
     }
   }
 }
