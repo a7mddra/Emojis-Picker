@@ -48,6 +48,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) { /* ignore */ }
     }
 
+    function clearRecents() {
+        try {
+            localStorage.removeItem(RECENT_KEY);
+            
+            showClearedFeedback();
+            
+            const activeBtn = document.querySelector('.cat-btn.active');
+            if (activeBtn && activeBtn.dataset.category === 'recent') {
+                displayByCategory('recent');
+            }
+        } catch (e) { /* ignore */ }
+    }
     
     function safeCopyToClipboard(text) {
         if (!text) return Promise.reject();
@@ -85,10 +97,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1400);
     }
 
+    function showClearedFeedback() {
+        const feedback = document.createElement('div');
+        feedback.className = 'copy-feedback cleared-feedback';
+        feedback.textContent = 'Recents cleared!';
+        document.body.appendChild(feedback);
+        requestAnimationFrame(() => feedback.classList.add('visible'));
+        setTimeout(() => {
+            feedback.classList.remove('visible');
+            setTimeout(() => {
+                if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
+            }, 300);
+        }, 1400);
+    }    
     
     let longPressTimer = null;
     let isLongPress = false;
     let currentEmojiData = null;
+    
+    let categoryLongPressTimer = null;
+    let isCategoryLongPress = false;
 
     function startLongPress(btn, emojiItem, e) {
         isLongPress = false;
@@ -114,6 +142,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         isLongPress = false;
     }
+
+    function startCategoryLongPress(btn, category) {
+        isCategoryLongPress = false;
+        clearTimeout(categoryLongPressTimer);
+        categoryLongPressTimer = setTimeout(() => {
+            isCategoryLongPress = true;
+            if (category === 'recent') {
+                clearRecents();
+            }
+        }, 800); 
+    }
+
+    function endCategoryLongPress(btn, category) {
+        clearTimeout(categoryLongPressTimer);
+        if (!isCategoryLongPress) {
+            
+            if (!category) return;
+            searchInput.value = '';
+            suggestionsContainer.style.display = 'none';
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            displayByCategory(category);
+        }
+        isCategoryLongPress = false;
+    }    
 
     function showSkinTonePopover(btn, emojiItem) {
         currentEmojiData = emojiItem;
@@ -412,14 +465,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.addEventListener('click', (ev) => {
-            const category = ev.currentTarget.dataset.category;
-            if (!category) return;
-            searchInput.value = '';
-            suggestionsContainer.style.display = 'none';
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            ev.currentTarget.classList.add('active');
-            displayByCategory(category);
+        const category = btn.dataset.category;
+        
+        
+        btn.addEventListener('mousedown', (e) => {
+            startCategoryLongPress(btn, category);
+        });
+        
+        btn.addEventListener('mouseup', (e) => {
+            endCategoryLongPress(btn, category);
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            clearTimeout(categoryLongPressTimer);
+            isCategoryLongPress = false;
+        });
+
+        
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startCategoryLongPress(btn, category);
+        }, { passive: false });
+
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            endCategoryLongPress(btn, category);
+        });
+
+        btn.addEventListener('touchcancel', () => {
+            clearTimeout(categoryLongPressTimer);
+            isCategoryLongPress = false;
         });
     });
 
