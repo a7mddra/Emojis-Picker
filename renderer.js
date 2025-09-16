@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function performSearch(query) {
         if (!query || !query.trim()) {
-            displayByCategory('smileys');
+            displayByCategory('smileys and people');
             return;
         }
         const results = searchEmojis(query, 48);
