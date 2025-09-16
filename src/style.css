@@ -29,6 +29,94 @@ body {
     position: relative;
 }
 
+/* Traffic Light Buttons */
+.traffic-lights {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px 8px 16px;
+    -webkit-app-region: drag;
+    gap: 8px;
+}
+
+.traffic-light-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: no-drag;
+    position: relative;
+}
+
+.traffic-light-btn:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
+
+.traffic-light-btn:active {
+    transform: scale(0.95);
+}
+
+.close-btn {
+    background: #ff5f57;
+}
+
+.close-btn:hover {
+    background: #ff3b30;
+}
+
+.minimize-btn {
+    background: #ffbd2e;
+}
+
+.minimize-btn:hover {
+    background: #ff9500;
+}
+
+.maximize-btn {
+    background: #28ca42;
+}
+
+.maximize-btn:hover {
+    background: #1db335;
+}
+
+/* Traffic light symbols on hover */
+.traffic-light-btn::after {
+    content: '';
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.close-btn:hover::after {
+    content: '×';
+    color: #6b1c1c;
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 1;
+}
+
+.minimize-btn:hover::after {
+    content: '−';
+    color: #7a5c0d;
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 1;
+}
+
+.maximize-btn:hover::after {
+    content: '+';
+    color: #0f5c1e;
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 1;
+}
+
 /* Search Bar */
 .search-container {
     display: flex;
@@ -42,7 +130,7 @@ body {
 
 .search-icon {
     position: absolute;
-    left: 50px; /* Moved right to accommodate close button */
+    left: 20px;
     color: rgba(255, 255, 255, 0.4);
     pointer-events: none;
     z-index: 10;
@@ -54,7 +142,7 @@ body {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
-    padding: 0 35px 0 65px; /* Adjusted left padding for close button */
+    padding: 0 35px;
     color: rgba(255, 255, 255, 0.9);
     font-size: 13px;
     outline: none;
@@ -69,33 +157,6 @@ body {
 .search-input:focus {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(255, 255, 255, 0.2);
-}
-
-.close-btn {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #ff5f57;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    left: 20px; /* Positioned on the left like macOS */
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    -webkit-app-region: no-drag;
-    z-index: 15;
-}
-
-.close-btn:hover {
-    background: #ff3b30;
-    transform: scale(1.1);
-}
-
-.close-btn:active {
-    transform: scale(0.9);
 }
 
 /* Search Suggestions */

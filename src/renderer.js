@@ -195,9 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const container = document.querySelector('.emoji-content');
         const picker = document.querySelector('.emoji-picker');
 
-        // Add null checks to prevent errors
         if (!container || !picker) {
-            // Fallback to simple positioning if elements don't exist
             skinTonePopover.style.left = `${rect.left + rect.width / 2}px`;
             let top = rect.top - 48 - 8;
             if (top < 8) top = rect.bottom + 8;
@@ -543,6 +541,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             try { window.close(); } catch (e) { }
+        });
+    }
+
+    const minimizeBtn = document.querySelector('.minimize-btn');
+    const electronAPI = /** @type {any} */ (window).electronAPI;
+    if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', () => {
+            try { electronAPI?.minimize?.(); } catch (e) { }
         });
     }
 

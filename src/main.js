@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -9,7 +9,7 @@ function createWindow() {
     transparent: true,
     alwaysOnTop: true,
     resizable: false,
-    skipTaskbar: true,
+    skipTaskbar: false,
     hasShadow: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -42,6 +42,16 @@ function createWindow() {
 }
 
 let mainWindow;
+
+ipcMain.on('minimize-window', (event) => {
+  try {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.minimize();
+    }
+  } catch (e) {
+    console.warn('Failed to minimize window:', e && e.message);
+  }
+});
 
 app.whenReady().then(() => {
   mainWindow = createWindow();

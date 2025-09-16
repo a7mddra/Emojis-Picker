@@ -10,6 +10,13 @@
 </head>
 <body>
   <div class="emoji-picker" role="application" aria-label="Emoji picker">
+    <!-- macOS Traffic Light Buttons -->
+    <div class="traffic-lights">
+      <button class="traffic-light-btn close-btn" title="Close" aria-label="Close picker"></button>
+      <button class="traffic-light-btn minimize-btn" title="Minimize" aria-label="Minimize picker"></button>
+      <button class="traffic-light-btn maximize-btn" title="Maximize" aria-label="Maximize picker"></button>
+    </div>
+
     <div class="search-container" role="region" aria-label="Search">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
@@ -23,8 +30,6 @@
         aria-label="Search emojis"
         autocomplete="off"
       />
-
-      <button class="close-btn" title="Close" aria-label="Close picker"></button>
     </div>
 
     <div class="suggestions-container" id="suggestions-container" role="listbox" aria-label="Suggestions"></div>
@@ -36,7 +41,7 @@
       <div class="skin-tone-options" id="skin-tone-options" role="list"></div>
     </div>
 
-<div class="category-nav" role="navigation" aria-label="Categories">
+    <div class="category-nav" role="navigation" aria-label="Categories">
         <button class="cat-btn" data-category="recent" title="Recently Used" aria-label="Recently used">
             <img src="assets/nav/r.svg" alt="" class="icon-normal">
             <img src="assets/nav-active/R.svg" alt="" class="icon-active">

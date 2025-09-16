@@ -3,7 +3,8 @@
   "name": "emojiz",
   "version": "1.0.0",
   "description": "iOS-like emoji picker widget",
-  "main": "electron-main.js",
+  "homepage": "https://example.com/emojiz",
+  "main": "src/main.js",
   "author": "a7md <a7mddra@gmail.com>",
   "license": "MIT",
   "scripts": {
