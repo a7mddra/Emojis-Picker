@@ -1,4 +1,4 @@
-import { emojiData } from './assets/emoji-data.js';
+import { emojiData } from '../assets/emoji-data.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
