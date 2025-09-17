@@ -1,5 +1,10 @@
-const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+
+const isDev = process.env.NODE_ENV === 'development';
+try {
+  app.setAppUserModelId('com.a7md.emojiz');
+} catch (e) { }
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -21,33 +26,29 @@ function createWindow() {
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces(true);
 
-  win.loadFile('index.html');
+  win.loadFile(path.join(__dirname, 'index.html'));
 
-  win.once('ready-to-show', () => win.center());
+  win.once('ready-to-show', () => {
+    try { win.center(); } catch (e) { }
+  });
 
   win.on('close', (event) => {
     event.preventDefault();
     win.hide();
   });
 
-  try {
-    win.setAppUserModelId('com.a7md.emojiz');
-  } catch (e) {}
-
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
     win.webContents.openDevTools({ mode: 'detach' });
   }
 
   return win;
 }
 
-let mainWindow;
+let mainWindow = null;
 
-ipcMain.on('minimize-window', (event) => {
+ipcMain.on('minimize-window', () => {
   try {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.minimize();
-    }
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
   } catch (e) {
     console.warn('Failed to minimize window:', e && e.message);
   }
@@ -55,16 +56,15 @@ ipcMain.on('minimize-window', (event) => {
 
 app.whenReady().then(() => {
   mainWindow = createWindow();
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow();
     else if (mainWindow) mainWindow.show();
   });
 });
 
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
-});
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+console.log('main process started, __dirname=', __dirname);
+console.log('NODE_ENV=', process.env.NODE_ENV);
